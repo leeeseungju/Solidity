@@ -1,616 +1,1097 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>Rental Platform DApp</title>
-  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    input, button { margin: 4px; padding: 5px; }
-    h3 { margin-top: 20px; }
-    pre { background: #f4f4f4; padding: 10px; white-space: pre-wrap; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rental Platform DApp</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --background-color: #f5f6fa;
+            --card-background: #ffffff;
+            --text-color: #2c3e50;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            background: linear-gradient(135deg, var(--card-background) 0%, #f8f9fa 100%);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.8em;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .section {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            text-align: center;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            min-width: 150px;
+            font-size: 1em;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background-color: #357abd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button.danger {
+            background-color: var(--danger-color);
+        }
+
+        button.danger:hover {
+            background-color: #c0392b;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            font-size: 1em;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        }
+
+        pre {
+            width: 100%;
+            max-width: 100%;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            overflow-x: auto;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            margin-top: 15px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+            max-height: 350px;
+            font-size: 0.97em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            button {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2.2em;
+            }
+        }
+
+        .status-message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: var(--border-radius);
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* 입력 필드 그룹 스타일링 */
+        .input-group {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* 섹션 내부 컨텐츠 정렬 */
+        .section-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* 버튼 컨테이너 */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .row-2col {
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .row-2col > .section {
+            flex: 1 1 0;
+            min-width: 320px;
+            max-width: 500px;
+        }
+        @media (max-width: 1100px) {
+            .row-2col {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+        .row-3col {
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+        }
+        .row-3col > .section {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 100%;
+        }
+        @media (max-width: 900px) {
+            .row-3col {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+        .row:not(.row-2col) > .section {
+            width: 98%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tab-menu {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .tab-btn {
+            background: #eaf1fb;
+            color: #357abd;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            background: #4a90e2;
+            color: #fff;
+        }
+        .tab-content {
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .card-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 18px 22px;
+            min-width: 260px;
+            max-width: 320px;
+            flex: 1 1 260px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border: 1px solid #e0e0e0;
+            position: relative;
+        }
+        .card .card-title {
+            font-weight: 700;
+            color: #357abd;
+            font-size: 1.1em;
+            margin-bottom: 4px;
+        }
+        .card .card-category {
+            font-size: 0.98em;
+            color: #888;
+        }
+        .card .card-desc {
+            font-size: 1em;
+            margin-bottom: 4px;
+        }
+        .card .card-price {
+            color: #4a90e2;
+            font-weight: 600;
+            font-size: 1em;
+        }
+        .card .card-owner {
+            font-size: 0.92em;
+            color: #aaa;
+            word-break: break-all;
+        }
+        .card .card-available {
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #2ecc71;
+        }
+        .card .card-unavailable {
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #e74c3c;
+        }
+        .card .card-id {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 0.9em;
+            color: #bbb;
+        }
+    </style>
 </head>
 <body>
-  <h1>Rental DApp Interface</h1>
+    <div class="container">
+        <header>
+            <h1>대여 플랫폼 DApp</h1>
+            <div class="button-group">
+                <button onclick="registerUser()">계정 등록</button>
+                <button onclick="switchAccount()">계정 전환</button>
+            </div>
+            <div id="currentAccountDisplay" style="margin-top:10px;font-size:1.1em;color:#357abd;font-weight:500;"></div>
+        </header>
 
-  <button onclick="registerUser()">계정 등록</button>
-  <button onclick="switchAccount()">계정 전환</button>
+        <!-- 탭 메뉴 -->
+        <div class="tab-menu">
+            <button class="tab-btn active" onclick="showTab('tab-products')">등록된 제품</button>
+            <button class="tab-btn" onclick="showTab('tab-my-rentals')">대여한 제품</button>
+            <button class="tab-btn" onclick="showTab('tab-asset-manage')">상품 등록/삭제</button>
+            <button class="tab-btn" onclick="showTab('tab-complete')">대여 완료</button>
+            <button class="tab-btn" onclick="showTab('tab-review')">후기 작성/확인</button>
+        </div>
 
-  <h3>내가 대여한 상품 보기</h3>
-  <button onclick="listMyRentals()">내 대여 목록</button>
-  <pre id="myRentalList"></pre>
+        <!-- 등록된 제품 탭 -->
+        <div class="tab-content" id="tab-products">
+            <div class="row">
+                <div class="section">
+                    <h3>등록된 제품</h3>
+                    <div class="section-content">
+                        <div class="button-container">
+                            <button onclick="listAssets()">전체 제품 목록 보기</button>
+                        </div>
+                        <div class="card-list" id="assetList"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="section">
+                    <h3>대여하기</h3>
+                    <div class="section-content">
+                        <div class="input-group">
+                            <input id="rentalAssetId" placeholder="자산 ID">
+                            <input id="startDateInput" placeholder="시작 날짜 (YYYY-MM-DD)">
+                            <input id="endDateInput" placeholder="종료 날짜 (YYYY-MM-DD)">
+                            <input id="rentalDeposit" placeholder="보증금 (ETH)">
+                        </div>
+                        <div class="button-container">
+                            <button onclick="createRentalContract()">대여하기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <h3>제품 등록</h3>
-  <input id="category" placeholder="제품 카테고리">
-  <input id="description" placeholder="상세 설명">
-  <input id="dailyPrice" placeholder="일일 요금">
-  <input id="deposit" placeholder="보증금">
-  <input id="imageHash" placeholder="Image IPFS Hash">
-  <button onclick="registerAsset()">제품 등록</button>
+        <!-- 대여한 제품 탭 -->
+        <div class="tab-content" id="tab-my-rentals" style="display:none;">
+            <div class="row">
+                <div class="section">
+                    <h3>내가 대여한 상품</h3>
+                    <div class="section-content">
+                        <div class="button-container">
+                            <button onclick="listMyRentals()">내 대여 목록</button>
+                        </div>
+                        <div class="card-list" id="myRentalList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <h3>등록된 제품 보기</h3>
-  <button onclick="listAssets()">전체 제품 목록 보기</button>
-  <pre id="assetList"></pre>
+        <!-- 상품 등록/삭제 탭 -->
+        <div class="tab-content" id="tab-asset-manage" style="display:none;">
+            <div class="row row-2col">
+                <div class="section">
+                    <h3>제품 등록</h3>
+                    <div class="section-content">
+                        <div class="input-group">
+                            <input id="category" placeholder="제품 카테고리">
+                            <input id="description" placeholder="상세 설명">
+                            <input id="dailyPrice" placeholder="일일 요금">
+                            <input id="deposit" placeholder="보증금">
+                            <input id="imageHash" placeholder="Image IPFS Hash">
+                        </div>
+                        <div class="button-container">
+                            <button onclick="registerAsset()">제품 등록</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>제품 삭제</h3>
+                    <div class="section-content">
+                        <div class="input-group">
+                            <input id="deleteAssetId" placeholder="삭제할 자산 ID">
+                        </div>
+                        <div class="button-container">
+                            <button class="danger" onclick="deleteAsset()">제품 삭제</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <h3>제품 삭제</h3>
-  <input id="deleteAssetId" placeholder="삭제할 자산 ID">
-  <button onclick="deleteAsset()">제품 삭제</button>
+        <!-- 대여 완료 탭 -->
+        <div class="tab-content" id="tab-complete" style="display:none;">
+            <div class="row">
+                <div class="section">
+                    <h3>대여 완료</h3>
+                    <div class="section-content">
+                        <div class="input-group">
+                            <input id="completeContractId" placeholder="계약 ID">
+                        </div>
+                        <div class="button-container">
+                            <button onclick="completeRental()">대여 완료</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <h3>대여 계약 생성</h3>
-  <input id="rentalAssetId" placeholder="자산 ID">
-  <input id="startDateInput" placeholder="시작 날짜 (YYYY-MM-DD)">
-  <input id="endDateInput" placeholder="종료 날짜 (YYYY-MM-DD)">
-  <input id="rentalDeposit" placeholder="보증금 (ETH)">
-  <button onclick="createRentalContract()">대여하기</button>
+        <!-- 후기 작성/확인 탭 -->
+        <div class="tab-content" id="tab-review" style="display:none;">
+            <div class="row row-2col">
+                <div class="section">
+                    <h3>후기 작성</h3>
+                    <div class="section-content">
+                        <div class="input-group">
+                            <input id="reviewContractId" placeholder="계약 ID">
+                            <input id="reviewee" placeholder="상대 지갑 주소">
+                            <input id="score" placeholder="점수 (1~5)">
+                            <input id="comment" placeholder="후기 내용">
+                            <input id="assetConditionHash" placeholder="자산 상태 해시">
+                        </div>
+                        <div class="button-container">
+                            <button onclick="leaveReview()">후기 남기기</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>후기 확인</h3>
+                    <div class="section-content">
+                        <div class="input-group">
+                            <input id="reviewLookupId" placeholder="계약 ID">
+                        </div>
+                        <div class="button-container">
+                            <button onclick="loadReviews()">리뷰 조회</button>
+                        </div>
+                        <pre id="reviewResults"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <h3>대여 완료</h3>
-  <input id="completeContractId" placeholder="계약 ID">
-  <button onclick="completeRental()">대여 완료</button>
+    <script>
+        const contractAddress = "0x659466ff5762821135d0568537A9A114B30c9217";
+        const contractABI = [
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "contractId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "completeRental",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "assetId",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "startDate",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "endDate",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "createRentalContract",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "assetId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "deleteAsset",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "contractId",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "reviewee",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "score",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "comment",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "assetConditionHash",
+                        "type": "string"
+                    }
+                ],
+                "name": "leaveReview",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "category",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "description",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "dailyPrice",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "deposit",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "imageHash",
+                        "type": "string"
+                    }
+                ],
+                "name": "registerAsset",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "registerUser",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "inputs": [],
+                "name": "admin",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "assetCount",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "assets",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "category",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "description",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "dailyPrice",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "deposit",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "isAvailable",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "imageHash",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "contractCount",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "rentalContracts",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "assetId",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "lender",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "renter",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "startDate",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "endDate",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "deposit",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "enum RentalPlatform.RentalStatus",
+                        "name": "status",
+                        "type": "uint8"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "reviewsByContract",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "contractId",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "reviewer",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "reviewee",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "score",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "comment",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "assetConditionHash",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "userProfiles",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "trustScore",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "totalDeals",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "averageRating",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "isRegistered",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ]
 
-  <h3>후기 작성</h3>
-  <input id="reviewContractId" placeholder="계약 ID">
-  <input id="reviewee" placeholder="상대 지갑 주소">
-  <input id="score" placeholder="점수 (1~5)">
-  <input id="comment" placeholder="후기 내용">
-  <input id="assetConditionHash" placeholder="자산 상태 해시">
-  <button onclick="leaveReview()">후기 남기기</button>
+        let web3;
+        let contract;
+        let currentAccount;
 
-  <h3>후기 확인</h3>
-  <input id="reviewLookupId" placeholder="계약 ID">
-  <button onclick="loadReviews()">리뷰 조회</button>
-  <pre id="reviewResults"></pre>
-
-  <script>
-    const contractAddress = "0x659466ff5762821135d0568537A9A114B30c9217";
-    const contractABI = [
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "contractId",
-				"type": "uint256"
-			}
-		],
-		"name": "completeRental",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "assetId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "startDate",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "endDate",
-				"type": "uint256"
-			}
-		],
-		"name": "createRentalContract",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "assetId",
-				"type": "uint256"
-			}
-		],
-		"name": "deleteAsset",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "contractId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "reviewee",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "score",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "comment",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "assetConditionHash",
-				"type": "string"
-			}
-		],
-		"name": "leaveReview",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "category",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "description",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "dailyPrice",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "deposit",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "imageHash",
-				"type": "string"
-			}
-		],
-		"name": "registerAsset",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "registerUser",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [],
-		"name": "admin",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "assetCount",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "assets",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "category",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "description",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "dailyPrice",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "deposit",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "isAvailable",
-				"type": "bool"
-			},
-			{
-				"internalType": "string",
-				"name": "imageHash",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "contractCount",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "rentalContracts",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "assetId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "lender",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "renter",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "startDate",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "endDate",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "deposit",
-				"type": "uint256"
-			},
-			{
-				"internalType": "enum RentalPlatform.RentalStatus",
-				"name": "status",
-				"type": "uint8"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "reviewsByContract",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "contractId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "reviewer",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "reviewee",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "score",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "comment",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "assetConditionHash",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "userProfiles",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "trustScore",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "totalDeals",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "averageRating",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "isRegistered",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-]
-
-    let web3;
-    let contract;
-    let currentAccount;
-
-    window.addEventListener("load", async () => {
-      if (window.ethereum) {
-        web3 = new Web3(window.ethereum);
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        const accounts = await web3.eth.getAccounts();
-        currentAccount = accounts[0];
-        contract = new web3.eth.Contract(contractABI, contractAddress);
-      } else {
-        alert("MetaMask가 필요합니다.");
-      }
-    });
-
-    async function switchAccount() {
-      const accounts = await web3.eth.getAccounts();
-      currentAccount = accounts[0];
-      alert("현재 계정 전환됨: " + currentAccount);
-    }
-
-    async function registerUser() {
-      await contract.methods.registerUser().send({ from: currentAccount });
-      alert("회원 등록 완료");
-    }
-
-    async function registerAsset() {
-      const depositEth = deposit.value;
-      const depositWei = web3.utils.toWei(depositEth, "ether");
-
-      const dailyPriceEth = dailyPrice.value;
-      const dailyPriceWei = web3.utils.toWei(dailyPriceEth, "ether");
-
-      await contract.methods.registerAsset(
-        category.value,
-        description.value,
-        dailyPriceWei,
-        depositWei,
-        imageHash.value
-      ).send({ from: currentAccount });
-
-      alert("제품 등록 완료");
-    }
-
-    async function listMyRentals() {
-      try {
-        const total = await contract.methods.contractCount().call();
-        let result = `총 계약 수: ${total}\n\n`;
-
-        for (let i = 1; i <= total; i++) {
-          const rc = await contract.methods.rentalContracts(i).call();
-          if (rc.renter.toLowerCase() === currentAccount.toLowerCase()) {
-            const asset = await contract.methods.assets(rc.assetId).call();
-
-            const start = new Date(rc.startDate * 1000).toLocaleDateString();
-            const end = new Date(rc.endDate * 1000).toLocaleDateString();
-            const dailyPriceEth = web3.utils.fromWei(asset.dailyPrice.toString(), "ether");
-            // const depositEth = web3.utils.fromWei(asset.deposit.toString(), "ether");
-            const depositEth = asset.deposit; 
-
-            result += `
-            계약 ID: ${rc.id}
-            상품 ID: ${asset.id}
-            카테고리: ${asset.category}
-            설명: ${asset.description}
-            기간: ${start} ~ ${end}
-            보증금: ${depositEth} ETH
-            대여 가능 여부: ${asset.isAvailable ? '가능' : '불가능'}
-            등록자 지갑: ${asset.owner}
-            ---------------------------
-            `;
-          }
+        // 계정 주소 표시 함수
+        function updateCurrentAccountDisplay() {
+            const el = document.getElementById('currentAccountDisplay');
+            if (window.currentAccount) {
+                el.textContent = `현재 계정: ${window.currentAccount}`;
+            } else {
+                el.textContent = '현재 계정: (연결되지 않음)';
+            }
         }
 
-        if (result === `총 계약 수: ${total}\n\n`) {
-          result = "내가 대여한 상품이 없습니다.";
-        }
-
-        document.getElementById("myRentalList").textContent = result;
-      } catch (err) {
-        console.error(err);
-        alert("대여 목록 조회 중 오류 발생");
-      }
-    }
-
-    async function listAssets() {
-      const count = await contract.methods.assetCount().call();
-      let result = "총 등록 자산 수: " + count + "\n\n";
-      for (let i = 1; i <= count; i++) {
-        const asset = await contract.methods.assets(i).call();
-        const dailyPriceEth = web3.utils.fromWei(asset.dailyPrice, "ether");
-        const depositEth = web3.utils.fromWei(asset.deposit, "ether");
-
-        result += `제품 ID: ${asset.id}
-    카테고리: ${asset.category}
-    설명: ${asset.description}
-    일일 요금: ${dailyPriceEth} ETH
-    보증금: ${depositEth} ETH
-    대여 가능 여부: ${asset.isAvailable ? '가능' : '불가능'}
-    등록자 지갑: ${asset.owner}
-    ---------------------------\n`;
-      }
-      assetList.textContent = result;
-    }
-
-
-    function toTimestamp(dateStr) {
-      const date = new Date(dateStr + "T00:00:00Z"); // UTC 기준으로 고정
-      return Math.floor(date.getTime() / 1000);
-    }
-
-    async function createRentalContract() {
-      try {
-        const value = web3.utils.toWei(rentalDeposit.value, "ether");
-        const start = toTimestamp(document.getElementById("startDateInput").value);
-        const end = toTimestamp(document.getElementById("endDateInput").value);
-
-        console.log("요청값:", {
-          assetId: rentalAssetId.value,
-          startDate: start,
-          endDate: end,
-          deposit: value,
-          from: currentAccount,
+        window.addEventListener("load", async () => {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.request({ method: "eth_requestAccounts" });
+                const accounts = await web3.eth.getAccounts();
+                currentAccount = accounts[0];
+                contract = new web3.eth.Contract(contractABI, contractAddress);
+                window.currentAccount = currentAccount;
+                updateCurrentAccountDisplay();
+            } else {
+                alert("MetaMask가 필요합니다.");
+            }
         });
 
-        await contract.methods.createRentalContract(
-          rentalAssetId.value, start, end
-        ).send({ from: currentAccount, value });
-
-        alert("대여 요청 완료");
-      } catch (error) {
-        console.error("실패: ", error);
-        if (error && error.message) {
-          alert("실패 원인:\n" + error.message);
-        } else {
-          alert("알 수 없는 실패");
+        async function switchAccount() {
+            const accounts = await web3.eth.getAccounts();
+            currentAccount = accounts[0];
+            window.currentAccount = currentAccount;
+            updateCurrentAccountDisplay();
+            alert("현재 계정 전환됨: " + currentAccount);
         }
-      }
-    }
 
-    async function deleteAsset() {
-      const id = document.getElementById("deleteAssetId").value;
-      try {
-        await contract.methods.deleteAsset(id).send({ from: currentAccount });
-        alert("제품이 삭제되었습니다.");
-      } catch (err) {
-        console.error("삭제 실패:", err);
-        alert("삭제 실패: " + err.message);
-      }
-    }
+        async function registerUser() {
+            await contract.methods.registerUser().send({ from: currentAccount });
+            alert("회원 등록 완료");
+        }
 
+        async function registerAsset() {
+            const depositEth = deposit.value;
+            const depositWei = web3.utils.toWei(depositEth, "ether");
 
+            const dailyPriceEth = dailyPrice.value;
+            const dailyPriceWei = web3.utils.toWei(dailyPriceEth, "ether");
 
-    async function completeRental() {
-      try {
-        const contractId = completeContractId.value;
-        const rc = await contract.methods.rentalContracts(contractId).call();
-        console.log("계약 상태:", rc.status);
-        console.log("렌더 주소:", rc.lender);
-        console.log("내 주소:", currentAccount);
+            await contract.methods.registerAsset(
+                category.value,
+                description.value,
+                dailyPriceWei,
+                depositWei,
+                imageHash.value
+            ).send({ from: currentAccount });
 
-        await contract.methods.completeRental(contractId).send({ from: currentAccount });
-        alert("대여 완료 처리됨");
-      } catch (error) {
-        console.error("대여 완료 실패:", error);
-        alert("대여 완료 실패:\n" + error.message);
-      }
-    }
+            alert("제품 등록 완료");
+        }
 
+        async function listMyRentals() {
+            try {
+                const total = await contract.methods.contractCount().call();
+                let html = '<div class="card-list">';
+                for (let i = 1; i <= total; i++) {
+                    const rc = await contract.methods.rentalContracts(i).call();
+                    if (rc.renter.toLowerCase() === currentAccount.toLowerCase()) {
+                        const asset = await contract.methods.assets(rc.assetId).call();
 
-    async function leaveReview() {
-      await contract.methods.leaveReview(
-        reviewContractId.value, reviewee.value,
-        score.value, comment.value, assetConditionHash.value
-      ).send({ from: currentAccount });
-      alert("후기 작성 완료");
-    }
+                        const start = new Date(rc.startDate * 1000).toLocaleDateString();
+                        const end = new Date(rc.endDate * 1000).toLocaleDateString();
+                        const dailyPriceEth = web3.utils.fromWei(asset.dailyPrice.toString(), "ether");
+                        // const depositEth = web3.utils.fromWei(asset.deposit.toString(), "ether");
+                        const depositEth = asset.deposit; 
 
-    async function loadReviews() {
-      const contractId = reviewLookupId.value;
-      try {
-        const review = await contract.methods.reviewsByContract(contractId, 0).call();
-        reviewResults.textContent = JSON.stringify(review, null, 2);
-      } catch (e) {
-        reviewResults.textContent = "리뷰 없음 또는 오류: " + e.message;
-      }
-    }
-  </script>
+                        html += `
+                        <div class="card">
+                            <div class="card-id">계약 #${rc.id}</div>
+                            <div class="card-title">${asset.category ? asset.category : '카테고리 없음'}</div>
+                            <div class="card-desc">${asset.description ? asset.description : '설명 없음'}</div>
+                            <div class="card-price">기간: ${start} ~ ${end}</div>
+                            <div class="card-price">보증금: ${depositEth} ETH</div>
+                            <div class="${asset.isAvailable ? 'card-available' : 'card-unavailable'}">
+                                ${asset.isAvailable ? '대여 가능' : '대여 불가'}
+                            </div>
+                            <div class="card-owner">등록자: ${asset.owner}</div>
+                        </div>
+                        `;
+                    }
+                }
+                html += '</div>';
+                if (html === '<div class="card-list"></div>') {
+                    html = '<div style="text-align:center;color:#aaa;padding:30px 0;">내가 대여한 상품이 없습니다.</div>';
+                }
+                document.getElementById("myRentalList").innerHTML = html;
+            } catch (err) {
+                console.error(err);
+                alert("대여 목록 조회 중 오류 발생");
+            }
+        }
+
+        async function listAssets() {
+            const count = await contract.methods.assetCount().call();
+            let html = '<div class="card-list">';
+            for (let i = 1; i <= count; i++) {
+                const asset = await contract.methods.assets(i).call();
+                const dailyPriceEth = web3.utils.fromWei(asset.dailyPrice, "ether");
+                const depositEth = web3.utils.fromWei(asset.deposit, "ether");
+                html += `
+                <div class="card">
+                    <div class="card-id">#${asset.id}</div>
+                    <div class="card-title">${asset.category ? asset.category : '카테고리 없음'}</div>
+                    <div class="card-desc">${asset.description ? asset.description : '설명 없음'}</div>
+                    <div class="card-price">일일 요금: ${dailyPriceEth} ETH</div>
+                    <div class="card-price">보증금: ${depositEth} ETH</div>
+                    <div class="${asset.isAvailable ? 'card-available' : 'card-unavailable'}">
+                        ${asset.isAvailable ? '대여 가능' : '대여 불가'}
+                    </div>
+                    <div class="card-owner">등록자: ${asset.owner}</div>
+                </div>
+                `;
+            }
+            html += '</div>';
+            document.getElementById("assetList").innerHTML = html;
+        }
+
+        function toTimestamp(dateStr) {
+            const date = new Date(dateStr + "T00:00:00Z"); // UTC 기준으로 고정
+            return Math.floor(date.getTime() / 1000);
+        }
+
+        async function createRentalContract() {
+            try {
+                const value = web3.utils.toWei(rentalDeposit.value, "ether");
+                const start = toTimestamp(document.getElementById("startDateInput").value);
+                const end = toTimestamp(document.getElementById("endDateInput").value);
+
+                console.log("요청값:", {
+                    assetId: rentalAssetId.value,
+                    startDate: start,
+                    endDate: end,
+                    deposit: value,
+                    from: currentAccount,
+                });
+
+                await contract.methods.createRentalContract(
+                    rentalAssetId.value, start, end
+                ).send({ from: currentAccount, value });
+
+                alert("대여 요청 완료");
+            } catch (error) {
+                console.error("실패: ", error);
+                if (error && error.message) {
+                    alert("실패 원인:\n" + error.message);
+                } else {
+                    alert("알 수 없는 실패");
+                }
+            }
+        }
+
+        async function deleteAsset() {
+            const id = document.getElementById("deleteAssetId").value;
+            try {
+                await contract.methods.deleteAsset(id).send({ from: currentAccount });
+                alert("제품이 삭제되었습니다.");
+            } catch (err) {
+                console.error("삭제 실패:", err);
+                alert("삭제 실패: " + err.message);
+            }
+        }
+
+        async function completeRental() {
+            try {
+                const contractId = completeContractId.value;
+                const rc = await contract.methods.rentalContracts(contractId).call();
+                console.log("계약 상태:", rc.status);
+                console.log("렌더 주소:", rc.lender);
+                console.log("내 주소:", currentAccount);
+
+                await contract.methods.completeRental(contractId).send({ from: currentAccount });
+                alert("대여 완료 처리됨");
+            } catch (error) {
+                console.error("대여 완료 실패:", error);
+                alert("대여 완료 실패:\n" + error.message);
+            }
+        }
+
+        async function leaveReview() {
+            await contract.methods.leaveReview(
+                reviewContractId.value, reviewee.value,
+                score.value, comment.value, assetConditionHash.value
+            ).send({ from: currentAccount });
+            alert("후기 작성 완료");
+        }
+
+        async function loadReviews() {
+            const contractId = reviewLookupId.value;
+            try {
+                const review = await contract.methods.reviewsByContract(contractId, 0).call();
+                reviewResults.textContent = JSON.stringify(review, null, 2);
+            } catch (e) {
+                reviewResults.textContent = "리뷰 없음 또는 오류: " + e.message;
+            }
+        }
+
+        // 탭 전환 스크립트
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.getElementById(tabId).style.display = 'block';
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.tab-btn[onclick*="' + tabId + '"]').classList.add('active');
+        }
+    </script>
 </body>
 </html>
