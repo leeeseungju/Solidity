@@ -348,6 +348,8 @@
             font-size: 0.92em;
             color: #aaa;
             word-break: break-all;
+            white-space: normal;         /* 줄바꿈 허용 */
+            overflow-wrap: break-word;
         }
         .card .card-available {
             font-size: 0.95em;
@@ -443,7 +445,6 @@
                         <div class="input-group">
                             <input id="category" placeholder="제품 카테고리">
                             <input id="description" placeholder="상세 설명">
-                            <input id="dailyPrice" placeholder="일일 요금">
                             <input id="deposit" placeholder="보증금">
                             <input id="imageHash" placeholder="Image IPFS Hash">
                         </div>
@@ -518,366 +519,375 @@
     </div>
 
     <script>
-        const contractAddress = "0x659466ff5762821135d0568537A9A114B30c9217";
+        const contractAddress = "0x58A3446F078e0FE735ee1e5095d7579ce314F1dD";
         const contractABI = [
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "contractId",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "completeRental",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "assetId",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "startDate",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "endDate",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "createRentalContract",
-                "outputs": [],
-                "stateMutability": "payable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "assetId",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "deleteAsset",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "contractId",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "reviewee",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "score",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "comment",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "assetConditionHash",
-                        "type": "string"
-                    }
-                ],
-                "name": "leaveReview",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "string",
-                        "name": "category",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "description",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "dailyPrice",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "deposit",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "imageHash",
-                        "type": "string"
-                    }
-                ],
-                "name": "registerAsset",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "registerUser",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "stateMutability": "nonpayable",
-                "type": "constructor"
-            },
-            {
-                "inputs": [],
-                "name": "admin",
-                "outputs": [
-                    {
-                        "internalType": "address",
-                        "name": "",
-                        "type": "address"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "assetCount",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "assets",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "id",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "owner",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "category",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "description",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "dailyPrice",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "deposit",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "bool",
-                        "name": "isAvailable",
-                        "type": "bool"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "imageHash",
-                        "type": "string"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "contractCount",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "rentalContracts",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "id",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "assetId",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "lender",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "renter",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "startDate",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "endDate",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "deposit",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "enum RentalPlatform.RentalStatus",
-                        "name": "status",
-                        "type": "uint8"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "reviewsByContract",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "contractId",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "reviewer",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "reviewee",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "score",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "comment",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "assetConditionHash",
-                        "type": "string"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "",
-                        "type": "address"
-                    }
-                ],
-                "name": "userProfiles",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "trustScore",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "totalDeals",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "averageRating",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "bool",
-                        "name": "isRegistered",
-                        "type": "bool"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            }
-        ]
+        {
+            "inputs": [],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
+        },
+        {
+            "inputs": [],
+            "name": "admin",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "assetCount",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "name": "assets",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "id",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "owner",
+                    "type": "address"
+                },
+                {
+                    "internalType": "string",
+                    "name": "category",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "deposit",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "isAvailable",
+                    "type": "bool"
+                },
+                {
+                    "internalType": "string",
+                    "name": "imageHash",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "contractId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "completeRental",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "contractCount",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "assetId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "startDate",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "endDate",
+                    "type": "uint256"
+                }
+            ],
+            "name": "createRentalContract",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "assetId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "deleteAsset",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "contractId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getReviewCount",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "contractId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "reviewee",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "score",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "comment",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "assetConditionHash",
+                    "type": "string"
+                }
+            ],
+            "name": "leaveReview",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "category",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "deposit",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "imageHash",
+                    "type": "string"
+                }
+            ],
+            "name": "registerAsset",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "registerUser",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "name": "rentalContracts",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "id",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "assetId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "lender",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "renter",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "startDate",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "endDate",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "deposit",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "enum RentalPlatform.RentalStatus",
+                    "name": "status",
+                    "type": "uint8"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "name": "reviewsByContract",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "contractId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "reviewer",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "reviewee",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "score",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "comment",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "assetConditionHash",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "name": "userProfiles",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "trustScore",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "totalDeals",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "averageRating",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "isRegistered",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        }
+    ]
 
         let web3;
         let contract;
@@ -924,13 +934,9 @@
             const depositEth = deposit.value;
             const depositWei = web3.utils.toWei(depositEth, "ether");
 
-            const dailyPriceEth = dailyPrice.value;
-            const dailyPriceWei = web3.utils.toWei(dailyPriceEth, "ether");
-
             await contract.methods.registerAsset(
                 category.value,
                 description.value,
-                dailyPriceWei,
                 depositWei,
                 imageHash.value
             ).send({ from: currentAccount });
@@ -949,9 +955,9 @@
 
                         const start = new Date(rc.startDate * 1000).toLocaleDateString();
                         const end = new Date(rc.endDate * 1000).toLocaleDateString();
-                        const dailyPriceEth = web3.utils.fromWei(asset.dailyPrice.toString(), "ether");
-                        // const depositEth = web3.utils.fromWei(asset.deposit.toString(), "ether");
-                        const depositEth = asset.deposit; 
+
+                        // ✅ 보증금 단위 변환 (Wei → ETH)
+                        const depositEth = web3.utils.fromWei(asset.deposit.toString(), "ether");
 
                         html += `
                         <div class="card">
@@ -979,19 +985,18 @@
             }
         }
 
+
         async function listAssets() {
             const count = await contract.methods.assetCount().call();
             let html = '<div class="card-list">';
             for (let i = 1; i <= count; i++) {
                 const asset = await contract.methods.assets(i).call();
-                const dailyPriceEth = web3.utils.fromWei(asset.dailyPrice, "ether");
                 const depositEth = web3.utils.fromWei(asset.deposit, "ether");
                 html += `
                 <div class="card">
                     <div class="card-id">#${asset.id}</div>
                     <div class="card-title">${asset.category ? asset.category : '카테고리 없음'}</div>
                     <div class="card-desc">${asset.description ? asset.description : '설명 없음'}</div>
-                    <div class="card-price">일일 요금: ${dailyPriceEth} ETH</div>
                     <div class="card-price">보증금: ${depositEth} ETH</div>
                     <div class="${asset.isAvailable ? 'card-available' : 'card-unavailable'}">
                         ${asset.isAvailable ? '대여 가능' : '대여 불가'}
@@ -1011,30 +1016,20 @@
 
         async function createRentalContract() {
             try {
-                const value = web3.utils.toWei(rentalDeposit.value, "ether");
                 const start = toTimestamp(document.getElementById("startDateInput").value);
                 const end = toTimestamp(document.getElementById("endDateInput").value);
+                const asset = await contract.methods.assets(rentalAssetId.value).call();
 
-                console.log("요청값:", {
-                    assetId: rentalAssetId.value,
-                    startDate: start,
-                    endDate: end,
-                    deposit: value,
-                    from: currentAccount,
-                });
-
+                const depositWei = BigInt(asset.deposit);
+                const totalPayment = depositWei;
                 await contract.methods.createRentalContract(
                     rentalAssetId.value, start, end
-                ).send({ from: currentAccount, value });
+                ).send({ from: currentAccount, value: totalPayment.toString() });
 
                 alert("대여 요청 완료");
             } catch (error) {
                 console.error("실패: ", error);
-                if (error && error.message) {
-                    alert("실패 원인:\n" + error.message);
-                } else {
-                    alert("알 수 없는 실패");
-                }
+                alert("실패 원인:\n" + (error.message || "알 수 없는 실패"));
             }
         }
 
@@ -1075,13 +1070,38 @@
 
         async function loadReviews() {
             const contractId = reviewLookupId.value;
+
             try {
-                const review = await contract.methods.reviewsByContract(contractId, 0).call();
-                reviewResults.textContent = JSON.stringify(review, null, 2);
+                const reviewCount = await contract.methods.getReviewCount(contractId).call();
+                if (reviewCount == 0) {
+                    reviewResults.innerHTML = "<div style='text-align:center; padding:20px; color:#aaa;'>리뷰가 없습니다.</div>";
+                    return;
+                }
+
+                let html = '<div class="card-list">';
+                for (let i = 0; i < reviewCount; i++) {
+                    const review = await contract.methods.reviewsByContract(contractId, i).call();
+                    html += `
+                        <div class="card">
+                            <div class="card-id">#${i + 1}</div>
+                            <div class="card-title">점수: ${review.score}점</div>
+                            <div class="card-desc">"${review.comment}"</div>
+                            <div class="card-owner">작성자: ${review.reviewer}</div>
+                            <div class="card-owner">대상자: ${review.reviewee}</div>
+                            <div class="card-category">자산 상태 해시: ${review.assetConditionHash}</div>
+                        </div>
+                    `;
+                }
+                html += '</div>';
+
+                reviewResults.innerHTML = html;
+
             } catch (e) {
-                reviewResults.textContent = "리뷰 없음 또는 오류: " + e.message;
+                console.error("리뷰 로드 실패:", e);
+                reviewResults.innerHTML = `<div style='color:red;'>리뷰 로드 실패: ${e.message}</div>`;
             }
         }
+
 
         // 탭 전환 스크립트
         function showTab(tabId) {

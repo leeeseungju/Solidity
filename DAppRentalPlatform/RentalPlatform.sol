@@ -25,7 +25,6 @@ contract RentalPlatform {
         address owner;
         string category;
         string description;
-        uint dailyPrice;
         uint deposit;
         bool isAvailable;
         string imageHash;
@@ -73,7 +72,6 @@ contract RentalPlatform {
     function registerAsset(
         string memory category,
         string memory description,
-        uint dailyPrice,
         uint deposit,
         string memory imageHash
     ) public {
@@ -85,11 +83,14 @@ contract RentalPlatform {
             msg.sender,
             category,
             description,
-            dailyPrice,
             deposit,
             true,
             imageHash
         );
+    }
+    
+    function getReviewCount(uint contractId) public view returns (uint) {
+        return reviewsByContract[contractId].length;
     }
 
     function deleteAsset(uint assetId) public {
