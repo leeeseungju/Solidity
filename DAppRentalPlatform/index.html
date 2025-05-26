@@ -373,7 +373,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>대여 플랫폼 DApp</h1>
+            <h1>DApp 대여 플랫폼</h1>
             <div class="button-group">
                 <button onclick="registerUser()">계정 등록</button>
                 <button onclick="switchAccount()">계정 전환</button>
@@ -384,8 +384,8 @@
         <!-- 탭 메뉴 -->
         <div class="tab-menu">
             <button class="tab-btn active" onclick="showTab('tab-products')">등록된 제품</button>
-            <button class="tab-btn" onclick="showTab('tab-my-rentals')">대여한 제품</button>
             <button class="tab-btn" onclick="showTab('tab-asset-manage')">상품 등록/삭제</button>
+            <button class="tab-btn" onclick="showTab('tab-my-rentals')">대여한 제품</button>
             <button class="tab-btn" onclick="showTab('tab-complete')">대여 완료</button>
             <button class="tab-btn" onclick="showTab('tab-review')">후기 작성/확인</button>
         </div>
@@ -408,7 +408,7 @@
                     <h3>대여하기</h3>
                     <div class="section-content">
                         <div class="input-group">
-                            <input id="rentalAssetId" placeholder="자산 ID">
+                            <input id="rentalAssetId" placeholder="상품 번호">
                             <input id="startDateInput" placeholder="시작 날짜 (YYYY-MM-DD)">
                             <input id="endDateInput" placeholder="종료 날짜 (YYYY-MM-DD)">
                             <input id="rentalDeposit" placeholder="보증금 (ETH)">
@@ -416,21 +416,6 @@
                         <div class="button-container">
                             <button onclick="createRentalContract()">대여하기</button>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 대여한 제품 탭 -->
-        <div class="tab-content" id="tab-my-rentals" style="display:none;">
-            <div class="row">
-                <div class="section">
-                    <h3>내가 대여한 상품</h3>
-                    <div class="section-content">
-                        <div class="button-container">
-                            <button onclick="listMyRentals()">내 대여 목록</button>
-                        </div>
-                        <div class="card-list" id="myRentalList"></div>
                     </div>
                 </div>
             </div>
@@ -462,6 +447,21 @@
                         <div class="button-container">
                             <button class="danger" onclick="deleteAsset()">제품 삭제</button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 대여한 제품 탭 -->
+        <div class="tab-content" id="tab-my-rentals" style="display:none;">
+            <div class="row">
+                <div class="section">
+                    <h3>내가 대여한 상품</h3>
+                    <div class="section-content">
+                        <div class="button-container">
+                            <button onclick="listMyRentals()">내 대여 목록</button>
+                        </div>
+                        <div class="card-list" id="myRentalList"></div>
                     </div>
                 </div>
             </div>
@@ -519,7 +519,7 @@
     </div>
 
     <script>
-        const contractAddress = "0x58A3446F078e0FE735ee1e5095d7579ce314F1dD";
+        const contractAddress = "0x24f41320C9472BF645C3515eD877aa15A0A00B9d";
         const contractABI = [
         {
             "inputs": [],
@@ -935,14 +935,18 @@
             const depositWei = web3.utils.toWei(depositEth, "ether");
 
             await contract.methods.registerAsset(
-                category.value,
-                description.value,
+                category.value || "카테고리 없음",
+                description.value || "설명 없음",
                 depositWei,
-                imageHash.value
+                imageHash.value || ""
             ).send({ from: currentAccount });
 
             alert("제품 등록 완료");
+
+            // 🔄 등록 후 다시 목록 갱신
+            await listAssets();
         }
+
 
         async function listMyRentals() {
             try {
@@ -985,19 +989,23 @@
             }
         }
 
-
         async function listAssets() {
             const count = await contract.methods.assetCount().call();
             let html = '<div class="card-list">';
             for (let i = 1; i <= count; i++) {
                 const asset = await contract.methods.assets(i).call();
-                const depositEth = web3.utils.fromWei(asset.deposit, "ether");
+
+                // 🧹 삭제된 자산은 스킵
+                if (asset.owner === "0x0000000000000000000000000000000000000000") continue;
+
+                const formattedDeposit = web3.utils.fromWei(asset.deposit.toString(), "ether");
+
                 html += `
                 <div class="card">
-                    <div class="card-id">#${asset.id}</div>
-                    <div class="card-title">${asset.category ? asset.category : '카테고리 없음'}</div>
-                    <div class="card-desc">${asset.description ? asset.description : '설명 없음'}</div>
-                    <div class="card-price">보증금: ${depositEth} ETH</div>
+                    <div class="card-id" style="position:absolute; top:12px; right:18px; color:#bbb;">상품 번호 #${asset.id}</div>
+                    <div class="card-title" style="color:#357abd; font-weight:700;">${asset.category || '카테고리 없음'}</div>
+                    <div class="card-desc">${asset.description || '설명 없음'}</div>
+                    <div class="card-price">보증금: ${formattedDeposit} ETH</div>
                     <div class="${asset.isAvailable ? 'card-available' : 'card-unavailable'}">
                         ${asset.isAvailable ? '대여 가능' : '대여 불가'}
                     </div>
@@ -1005,9 +1013,16 @@
                 </div>
                 `;
             }
-            html += '</div>';
+
+            if (html === '<div class="card-list">') {
+                html = '<div style="text-align:center;color:#aaa;padding:30px 0;">등록된 상품이 없습니다.</div>';
+            } else {
+                html += '</div>';
+            }
+
             document.getElementById("assetList").innerHTML = html;
         }
+
 
         function toTimestamp(dateStr) {
             const date = new Date(dateStr + "T00:00:00Z"); // UTC 기준으로 고정
@@ -1038,11 +1053,13 @@
             try {
                 await contract.methods.deleteAsset(id).send({ from: currentAccount });
                 alert("제품이 삭제되었습니다.");
+                await listAssets(); // ✅ 삭제 후 카드 갱신
             } catch (err) {
                 console.error("삭제 실패:", err);
                 alert("삭제 실패: " + err.message);
             }
         }
+
 
         async function completeRental() {
             try {
@@ -1083,7 +1100,7 @@
                     const review = await contract.methods.reviewsByContract(contractId, i).call();
                     html += `
                         <div class="card">
-                            <div class="card-id">#${i + 1}</div>
+                            <div class="card-id">계약 ID #${review.contractId}</div>
                             <div class="card-title">점수: ${review.score}점</div>
                             <div class="card-desc">"${review.comment}"</div>
                             <div class="card-owner">작성자: ${review.reviewer}</div>
